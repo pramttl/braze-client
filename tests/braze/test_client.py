@@ -171,3 +171,24 @@ class TestBrazeClient(object):
         # Ensure the correct wait time is used when rate limited
         for i in range(expected_attempts - 1):
             assert approx(no_sleep.call_args_list[i][0], reset_delta_seconds)
+
+    def test_user_export(self, braze_client, requests_mock):
+        headers = {"Content-Type": "application/json"}
+        mock_json = {
+            "message": "success",
+            "user": [
+                {
+                    "email": "test@goodrx.com",
+                    "external_id": "adc15c7d-858b-4261-bec7-2ac085778e41",
+                }
+            ],
+        }
+        requests_mock.post(ANY, json=mock_json, status_code=201, headers=headers)
+
+        response = braze_client.user_export(
+            external_ids=["adc15c7d-858b-4261-bec7-2ac085778e41"],
+            fields_to_export=["external_id", "email"],
+        )
+        assert braze_client.api_url + "/users/export/ids" == braze_client.request_url
+        assert response["status_code"] == 201
+        assert response["message"] == "success"
