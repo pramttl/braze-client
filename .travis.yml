@@ -32,3 +32,14 @@ after_script:
 branches:
   only:
     - master
+
+# Deploy to CloudRepo PyPI for new tags (versions) only
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  server: https://goodrx.mycloudrepo.io/repositories/goodrx
+  user: engineering-ops+travis-read-write@goodrx.com
+  password:
+    secure: "Y6g0bX8k3kE12G3BGgzpB+yiLTp5Jky2cbz68fO3S9xa3wd2ZWUWs+4Hl9b5U+4ErvJn/MqlKHiyiECjjvp9MbpYYopEaGYCSL6nz9WyHmkaeYFAERYH4Ec0efbyj3DUJElmJggR5pq3vB2pK5Zd/XdA5J0Ahx8G+8OgHNeCFk6rZK45AzNu5W0xDZaKfWS2tKcLaqI0as0mZT8/IJlo7dqE9P5O6oRtdKWh1kuzZvxbimBnp5fj5gE6mBu2y/ouKXxyA6wXwhkbtWGvRoWMualvfITET3gthNtxjxhq8FbPsAQZ//W+fBHIWXoPUcy2/wENjK5kQf+cABDgnNotGol8MdrQ8Z6lixKSKPQd8LOS6717ZUh+b0c3dizuMPlDEWGcDiB0ZTNC4hEAluHFXWfPwQ3yfxKjnEFK9G3F1tJDgPY6YYLUJTQ8MyqsgZqLgEK8K4Cy5qmkCMz0XRrr/a6RkwiUR6fgDgmoFBP7nMlnrUmm2GEfcSW71rwO5maApzSBxJx30Es1/qLKAZI5T1YCPqEIHUrq4rx+UvPVVpVDwqMHFIy9Oe+8B8xoB9j4UBKqWG9Oxoatbh1g1asbNryuvpRDtKtDPLfuYXgN0oxRWvApetnPHnZLaQG+Mhb9wwNjC1mLRjoxiGLYQeaVwKyTeVFBBKQce2Dz0Nm0sL8="
+  "on":
+    tags: true
