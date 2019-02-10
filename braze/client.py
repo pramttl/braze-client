@@ -8,6 +8,7 @@ from tenacity import wait_random_exponential
 DEFAULT_API_URL = "https://rest.iad-02.braze.com"
 USER_TRACK_ENDPOINT = "/users/track"
 USER_DELETE_ENDPOINT = "/users/delete"
+USER_EXPORT_ENDPOINT = "/users/export/ids"
 MAX_RETRIES = 3
 # Max time to wait between API call retries
 MAX_WAIT_SECONDS = 1.25
@@ -98,7 +99,7 @@ class BrazeClient(object):
         self.api_url = api_url or DEFAULT_API_URL
         self.request_url = ""
 
-    def user_track(self, attributes, events, purchases):
+    def user_track(self, attributes=None, events=None, purchases=None):
         """
         Record custom events, user attributes, and purchases for users.
         :param attributes: dict or list of user attributes dict (external_id, first_name, email)
@@ -106,39 +107,85 @@ class BrazeClient(object):
         :param purchases: dict or list of user purchases dict (external_id, app_id, product_id, currency, price)
         :return: json dict response, for example: {"message": "success", "errors": [], "client_error": ""}
         """
+        if attributes is events is purchases is None:
+            raise ValueError(
+                "Bad arguments, at least one of attributes, events or purchases must be "
+                "non None"
+            )
         self.request_url = self.api_url + USER_TRACK_ENDPOINT
 
         payload = {}
 
         if events:
             payload["events"] = events
+        else:
+            payload["events"] = []
 
         if attributes:
             payload["attributes"] = attributes
+        else:
+            payload["attributes"] = []
 
         if purchases:
             payload["purchases"] = purchases
+        else:
+            payload["purchases"] = []
 
         return self.__create_request(payload=payload)
 
-    def user_delete(self, external_ids, appboy_ids):
+    def user_delete(self, external_ids):
         """
         Delete user from braze.
         :param external_ids: dict or list of user external ids
-        :param appboy_ids: dict or list of user braze ids
         :return: json dict response, for example: {"message": "success", "errors": [], "client_error": ""}
         """
+        if not external_ids:
+            raise ValueError("No external ids specified")
+
         self.request_url = self.api_url + USER_DELETE_ENDPOINT
+
+        payload = {"external_ids": external_ids}
+
+        return self.__create_request(payload=payload)
+
+    def user_export(self, external_ids=None, email=None, fields_to_export=None):
+        """
+        Export user profiles from braze. One of ``external_ids`` or ``email`` must be
+        provided. Braze allows exporting multiple user profiles through ``external_ids``
+        but only one with the ``email`` argument.
+        ref: https://www.braze.com/docs/developer_guide/rest_api/export/
+
+        :param list[str] external_ids:
+            optional list of braze external ids whose profiles are to be exported.
+        :param str email:
+            optional email for a braze profile whose data will be exported.
+        :param list[str] fields_to_export:
+            optional list of fields to export. If not specified braze exports all fields,
+            with a warning that this may slow down the API response time. See API doc for
+            list of valid fields.
+        :return: json dict response from braze
+        """
+        if external_ids is email is None:
+            raise ValueError("At least one of external_ids or email must be specified")
+
+        if external_ids is not None and email is not None:
+            raise ValueError("Both external_ids and email are specified")
+
+        self.request_url = self.api_url + USER_EXPORT_ENDPOINT
 
         payload = {}
 
         if external_ids:
             payload["external_ids"] = external_ids
+        elif email:
+            payload["email"] = email
 
-        if appboy_ids:
-            payload["appboy_ids"] = appboy_ids
+        if not fields_to_export:
+            fields_to_export = []
 
-        return self.__create_request(payload=payload)
+        payload["fields_to_export"] = fields_to_export
+
+        return self.__create_request(payload)
 
     def __create_request(self, payload):
 

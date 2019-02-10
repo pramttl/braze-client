@@ -26,7 +26,7 @@ else:
     print(r["errors"])
 
 # For delete users by external_id or appboy_id
-r = client.user_delete(external_ids=["1"], appboy_ids=None)
+r = client.user_delete(external_ids=["1"], braze_ids=None)
 if r["success"]:
     # do our magic here
     print("Success!")
