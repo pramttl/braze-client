@@ -98,7 +98,7 @@ class BrazeClient(object):
         self.api_url = api_url or DEFAULT_API_URL
         self.request_url = ""
 
-    def user_track(self, attributes, events, purchases):
+    def user_track(self, attributes=None, events=None, purchases=None):
         """
         Record custom events, user attributes, and purchases for users.
         :param attributes: dict or list of user attributes dict (external_id, first_name, email)
@@ -106,37 +106,51 @@ class BrazeClient(object):
         :param purchases: dict or list of user purchases dict (external_id, app_id, product_id, currency, price)
         :return: json dict response, for example: {"message": "success", "errors": [], "client_error": ""}
         """
+        if attributes is events is purchases is None:
+            raise ValueError(
+                "Bad arguments, at least one of attributes, events or purchases must be "
+                "non None"
+            )
         self.request_url = self.api_url + USER_TRACK_ENDPOINT
 
         payload = {}
 
         if events:
             payload["events"] = events
+        else:
+            payload["events"] = []
 
         if attributes:
             payload["attributes"] = attributes
+        else:
+            payload["attributes"] = []
 
         if purchases:
             payload["purchases"] = purchases
+        else:
+            payload["purchases"] = []
 
         return self.__create_request(payload=payload)
 
-    def user_delete(self, external_ids, appboy_ids):
+    def user_delete(self, external_ids):
         """
         Delete user from braze.
         :param external_ids: dict or list of user external ids
-        :param appboy_ids: dict or list of user braze ids
         :return: json dict response, for example: {"message": "success", "errors": [], "client_error": ""}
         """
+        if not external_ids:
+            raise ValueError("No external ids specified")
+
         self.request_url = self.api_url + USER_DELETE_ENDPOINT
 
+        payload = {"external_ids": external_ids}
+
+        return self.__create_request(payload=payload)
         payload = {}
 
         if external_ids:
             payload["external_ids"] = external_ids
 
-        if appboy_ids:
-            payload["appboy_ids"] = appboy_ids
 
         return self.__create_request(payload=payload)
 
