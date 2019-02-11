@@ -14,7 +14,17 @@ MAX_RETRIES = 3
 MAX_WAIT_SECONDS = 1.25
 
 
-class BrazeRateLimitError(Exception):
+class BrazeClientError(Exception):
+    """
+    Represents any Braze Client Error.
+
+    https://www.braze.com/docs/developer_guide/rest_api/user_data/#user-track-responses
+    """
+
+    pass
+
+
+class BrazeRateLimitError(BrazeClientError):
     def __init__(self, reset_epoch_s):
         """
         A rate limit error was encountered.
@@ -23,16 +33,6 @@ class BrazeRateLimitError(Exception):
         """
         self.reset_epoch_s = reset_epoch_s
         super(BrazeRateLimitError, self).__init__()
-
-
-class BrazeClientError(Exception):
-    """
-    Represents any Braze Fatal Error.
-
-    https://www.braze.com/docs/developer_guide/rest_api/user_data/#user-track-responses
-    """
-
-    pass
 
 
 class BrazeInternalServerError(BrazeClientError):
