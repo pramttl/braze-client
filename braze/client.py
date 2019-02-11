@@ -180,10 +180,8 @@ class BrazeClient(object):
         elif email:
             payload["email"] = email
 
-        if not fields_to_export:
-            fields_to_export = []
-
-        payload["fields_to_export"] = fields_to_export
+        if fields_to_export:
+            payload["fields_to_export"] = fields_to_export
 
         return self.__create_request(payload)
 
