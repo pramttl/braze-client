@@ -178,7 +178,7 @@ class BrazeClient(object):
         if external_ids:
             payload["external_ids"] = external_ids
         elif email:
-            payload["email"] = email
+            payload["email_address"] = email
 
         if fields_to_export:
             payload["fields_to_export"] = fields_to_export
