@@ -97,6 +97,7 @@ class BrazeClient(object):
     def __init__(self, api_key, api_url=None):
         self.api_key = api_key
         self.api_url = api_url or DEFAULT_API_URL
+        self.session = requests.Session()
         self.request_url = ""
 
     def user_track(self, attributes=None, events=None, purchases=None):
@@ -221,7 +222,7 @@ class BrazeClient(object):
         :param dict payload:
         :rtype: requests.Response
         """
-        r = requests.post(self.request_url, json=payload, timeout=2)
+        r = self.session.post(self.request_url, json=payload, timeout=2)
         # https://www.braze.com/docs/developer_guide/rest_api/messaging/#fatal-errors
         if r.status_code == 429:
             reset_epoch_s = float(r.headers.get("X-RateLimit-Reset", 0))
