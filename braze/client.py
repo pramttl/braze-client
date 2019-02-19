@@ -4,6 +4,7 @@ import requests
 from tenacity import retry
 from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
+from tenacity import wait_random
 
 DEFAULT_API_URL = "https://rest.iad-02.braze.com"
 USER_TRACK_ENDPOINT = "/users/track"
